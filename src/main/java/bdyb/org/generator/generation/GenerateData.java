@@ -112,7 +112,7 @@ public class GenerateData {
         String features = "";
         for (CarFeature feature : CarFeature.values()) {
             if (random.nextBoolean()) {
-                features = features.concat(feature.toString());
+                features = features.concat(feature.toString() + ";");
             }
         }
         return features;
