@@ -7,16 +7,21 @@ import bdyb.org.generator.dto.NewCustomerDto;
 import bdyb.org.generator.enums.CarStatus;
 import bdyb.org.generator.enums.CarType;
 import bdyb.org.generator.enums.Colour;
+import bdyb.org.generator.enums.SaleStatus;
 import bdyb.org.generator.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 @Component
 public class GenerateData {
+
+    private final Random random = new Random();
 
     @Autowired
     private AddressRepository addressRepository;
@@ -31,7 +36,6 @@ public class GenerateData {
     @Autowired
     private SaleRepository saleRepository;
 
-    private static final int CARS_NUMBER = 100000;
 
     @Bean
     public boolean generate() {
@@ -39,20 +43,55 @@ public class GenerateData {
         generateCarFeatures();
         generateCustomers();
         generateCars();
+        generateSales();
         return true;
     }
+
+    void generateSales() {
+        List<Customer> customers = customerRepository.findAll();
+        List<CarFeature> carFeatures = carFeatureRepository.findAll();
+        List<Car> cars = carRepository.findAll();
+        for (int i = 0; i < Constants.SALES_NUMBER; i++) {
+            saleRepository.save(Sale.builder()
+                    .saleStatus(SaleStatus.values()[random.nextInt(SaleStatus.values().length)])
+                    .customer(getCustomer(customers))
+                    .carFeatures(getCarFeatures(carFeatures))
+                    .car(getCar(cars))
+                    .build());
+        }
+    }
+
+    private Car getCar(List<Car> cars) {
+        Car removedCar = cars.remove(random.nextInt(cars.size()));
+        removedCar.setCarStatus(random.nextBoolean() ? CarStatus.RESERVED : CarStatus.RESERVED);
+        return carRepository.save(removedCar);
+    }
+
+    private Set<CarFeature> getCarFeatures(List<CarFeature> carFeatures) {
+        int numberOfFeatures = carFeatures.size();
+        HashSet<CarFeature> featuresToAdd = new HashSet<>();
+        for (int i = 0; i < random.nextInt(numberOfFeatures); i++) {
+            featuresToAdd.add(carFeatures.get(random.nextInt(numberOfFeatures)));
+        }
+        return featuresToAdd;
+    }
+
+    private Customer getCustomer(List<Customer> customers) {
+        return customers.get(random.nextInt(customers.size()));
+    }
+
 
     private void generateCars() {
         List<CarModel> allModels = carModelRepository.findAll();
         int modelsQuantity = allModels.size();
-        for (int i = 0; i < CARS_NUMBER; i++) {
+        for (int i = 0; i < Constants.CARS_NUMBER; i++) {
             carRepository.save(Car.builder()
                     .carStatus(CarStatus.FOR_SALE)
-                    .currentMileage(new Random().nextLong()% Constants.CAR_MAX_MILEAGE)
-                    .askingPrice(Math.abs(new Random().nextLong()%Constants.CAR_MAX_ASKING_PRICE))
-                    .productionYear(Math.abs(new Random().nextInt(Constants.CAR_PRODUCTION_UP_BOUNDARY - Constants.CAR_PRODUCTION_DOWN_BOUNDARY) + Constants.CAR_PRODUCTION_DOWN_BOUNDARY))
-                    .colour(Colour.values()[new Random().nextInt(Colour.values().length)])
-                    .carModel(allModels.get(new Random().nextInt(modelsQuantity)))
+                    .currentMileage(random.nextLong() % Constants.CAR_MAX_MILEAGE)
+                    .askingPrice(Math.abs(random.nextLong() % Constants.CAR_MAX_ASKING_PRICE))
+                    .productionYear(Math.abs(random.nextInt(Constants.CAR_PRODUCTION_UP_BOUNDARY - Constants.CAR_PRODUCTION_DOWN_BOUNDARY) + Constants.CAR_PRODUCTION_DOWN_BOUNDARY))
+                    .colour(Colour.values()[random.nextInt(Colour.values().length)])
+                    .carModel(allModels.get(random.nextInt(modelsQuantity)))
                     .build());
         }
 

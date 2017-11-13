@@ -5,7 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -29,7 +29,7 @@ public class Customer {
     private Gender gender;
 
     @OneToMany(mappedBy = "customer")
-    private List<Sale> sales;
+    private Set<Sale> sales;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")

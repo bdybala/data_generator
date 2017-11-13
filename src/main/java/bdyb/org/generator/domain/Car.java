@@ -30,4 +30,7 @@ public class Car {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "car_model_id")
     private CarModel carModel;
+
+    @OneToOne(mappedBy = "car")
+    private Sale sale;
 }

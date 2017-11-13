@@ -4,7 +4,7 @@ import bdyb.org.generator.enums.SaleStatus;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -22,16 +22,19 @@ public class Sale {
     @Enumerated(value = EnumType.STRING)
     private SaleStatus saleStatus;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "car_id")
+    private Car car;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
     @ManyToMany(cascade = {
-            CascadeType.PERSIST,
             CascadeType.MERGE
     })
     @JoinTable(name = "sale_car_feature",
             joinColumns = @JoinColumn(name = "sale_id"),
             inverseJoinColumns = @JoinColumn(name = "car_feature_id"))
-    private List<CarFeature> carFeatures;
+    private Set<CarFeature> carFeatures;
 }
