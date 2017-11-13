@@ -120,7 +120,7 @@ public class GenerateData {
 
     private Car getCar(List<Car> cars) {
         Car removedCar = cars.remove(random.nextInt(cars.size()));
-        removedCar.setCarStatus(random.nextBoolean() ? CarStatus.RESERVED : CarStatus.RESERVED);
+        removedCar.setCarStatus(random.nextBoolean() ? CarStatus.RESERVED : CarStatus.SOLD);
         return carRepository.save(removedCar);
     }
 
