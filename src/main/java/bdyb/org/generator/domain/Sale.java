@@ -21,6 +21,7 @@ public class Sale {
     private Long salesId;
     @Enumerated(value = EnumType.STRING)
     private SaleStatus saleStatus;
+    private String carFeatures;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "car_id")
@@ -30,11 +31,4 @@ public class Sale {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToMany(cascade = {
-            CascadeType.MERGE
-    })
-    @JoinTable(name = "sale_car_feature",
-            joinColumns = @JoinColumn(name = "sale_id"),
-            inverseJoinColumns = @JoinColumn(name = "car_feature_id"))
-    private Set<CarFeature> carFeatures;
 }

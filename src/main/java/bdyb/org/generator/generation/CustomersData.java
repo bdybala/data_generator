@@ -1,31 +1,29 @@
 package bdyb.org.generator.generation;
 
 import bdyb.org.generator.config.Constants;
-import bdyb.org.generator.dto.NewCustomerDto;
+import bdyb.org.generator.domain.Customer;
 import bdyb.org.generator.enums.Gender;
-import org.joda.time.DateTime;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 public class CustomersData {
 
-    public static final List<NewCustomerDto> NEW_CUSTOMERS;
+    public static final List<Customer> NEW_CUSTOMERS;
+    private static final Random random = new Random();
 
     static {
         NEW_CUSTOMERS = new ArrayList<>();
         for (int i = 0; i < Constants.CUSTOMERS_NUMBER; i++) {
-            NEW_CUSTOMERS.add(NewCustomerDto.builder()
-                    .email("email" + i + "@example.com")
+            NEW_CUSTOMERS.add(Customer.builder()
                     .phoneNumber("789456132")
                     .name("FirstName" + i)
                     .surname("LastName" + i)
-                    .birthday(getBirthday())
+                    .age(getAge())
                     .gender(getGender())
-                    .addressLineOne("nevermind" + i)
-                    .townCity("nevermind" + i)
-                    .stateCountyProvince(getVoivodeship())
-                    .country("Polska")
-                    .zipCode("10-100")
+                    .voivodeship(getVoivodeship())
                     .build());
         }
     }
@@ -49,16 +47,15 @@ public class CustomersData {
                 "warmińsko-mazurskie",
                 "wielkopolskie",
                 "zachodniopomorskie"));
-        return voivodeships.get(new Random().nextInt(16));
+        return voivodeships.get(random.nextInt(16));
     }
 
     private static Gender getGender() {
-        Random random = new Random();
         return random.nextBoolean() ? Gender.MALE : Gender.FEMALE;
     }
 
-
-    private static Date getBirthday() {
-        return new DateTime(new Date()).withTimeAtStartOfDay().minusYears(18).minusYears(new Random().nextInt(Constants.CUSTOMER_MAX_AGE + 18)).toDate();
+    private static int getAge() {
+        return random.nextInt(Constants.CUSTOMER_MAX_AGE - 18) + 18;
     }
+
 }
