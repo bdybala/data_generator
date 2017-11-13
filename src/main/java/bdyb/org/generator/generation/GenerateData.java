@@ -7,10 +7,7 @@ import bdyb.org.generator.domain.Customer;
 import bdyb.org.generator.domain.Sale;
 import bdyb.org.generator.dto.ManufacturerAndModelDto;
 import bdyb.org.generator.enums.*;
-import bdyb.org.generator.repository.CarModelRepository;
-import bdyb.org.generator.repository.CarRepository;
-import bdyb.org.generator.repository.CustomerRepository;
-import bdyb.org.generator.repository.SaleRepository;
+import bdyb.org.generator.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -24,6 +21,8 @@ public class GenerateData {
     private final Random random = new Random();
 
     @Autowired
+    private ColourRepository colourRepository;
+    @Autowired
     private CarModelRepository carModelRepository;
     @Autowired
     private CarRepository carRepository;
@@ -35,6 +34,7 @@ public class GenerateData {
 
     @Bean
     public boolean generate() {
+        generateColours();
         generateCarModels();
         generateCustomers();
         generateCars();
@@ -42,6 +42,20 @@ public class GenerateData {
         return true;
     }
 
+    private void generateColours() {
+        for (Colour colour : Colour.values()) {
+            for (VarnishType varnishType : VarnishType.values()) {
+                colourRepository.save(bdyb.org.generator.domain.Colour.builder()
+                        .description(colour.name())
+                        .varnishType(varnishType)
+                        .build());
+            }
+        }
+    }
+
+    /**
+     *
+     */
     private void generateCarModels() {
         // passenger
         for (ManufacturerAndModelDto modelDto : ModelsData.PASSENGER_CAR_MODELS) {
@@ -69,34 +83,45 @@ public class GenerateData {
         }
     }
 
+    /**
+     *
+     */
     private void generateCustomers() {
         for (Customer newCustomer : CustomersData.NEW_CUSTOMERS) {
             customerRepository.save(newCustomer);
         }
     }
 
+    /**
+     *
+     */
     private void generateCars() {
         List<CarModel> allModels = carModelRepository.findAll();
+        List<bdyb.org.generator.domain.Colour> allColours = colourRepository.findAll();
         int modelsQuantity = allModels.size();
         for (int i = 0; i < Constants.CARS_NUMBER; i++) {
             carRepository.save(Car.builder()
                     .carStatus(CarStatus.FOR_SALE)
-                    .currentMileage(random.nextLong() % Constants.CAR_MAX_MILEAGE)
+                    .currentMileage(Math.abs(random.nextLong() % Constants.CAR_MAX_MILEAGE))
                     .askingPrice(Math.abs(random.nextLong() % Constants.CAR_MAX_ASKING_PRICE))
                     .productionYear(Math.abs(random.nextInt(Constants.CAR_PRODUCTION_UP_BOUNDARY - Constants.CAR_PRODUCTION_DOWN_BOUNDARY) + Constants.CAR_PRODUCTION_DOWN_BOUNDARY))
-                    .colour(Colour.values()[random.nextInt(Colour.values().length)])
+                    .colour(allColours.get(random.nextInt(allColours.size())))
                     .carModel(allModels.get(random.nextInt(modelsQuantity)))
                     .build());
         }
 
     }
 
+    /**
+     *
+     */
     void generateSales() {
         List<Customer> customers = customerRepository.findAll();
         List<Car> cars = carRepository.findAll();
         for (int i = 0; i < Constants.SALES_NUMBER; i++) {
             saleRepository.save(Sale.builder()
                     .saleStatus(SaleStatus.values()[random.nextInt(SaleStatus.values().length)])
+                    .paymentType(PaymentType.values()[random.nextInt(PaymentType.values().length)])
                     .carFeatures(getCarFeatures())
                     .customer(getCustomer(customers))
                     .car(getCar(cars))

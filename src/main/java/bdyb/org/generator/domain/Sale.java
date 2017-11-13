@@ -1,5 +1,6 @@
 package bdyb.org.generator.domain;
 
+import bdyb.org.generator.enums.PaymentType;
 import bdyb.org.generator.enums.SaleStatus;
 import lombok.*;
 
@@ -21,6 +22,8 @@ public class Sale {
     private Long salesId;
     @Enumerated(value = EnumType.STRING)
     private SaleStatus saleStatus;
+    @Enumerated(value = EnumType.STRING)
+    private PaymentType paymentType;
     private String carFeatures;
 
     @OneToOne(fetch = FetchType.LAZY)
